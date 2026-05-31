@@ -1,0 +1,1432 @@
+<!doctype html>
+<html lang="en">
+<head>
+  <meta charset="utf-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1" />
+  <title>PDF Studio Mobile — Single File</title>
+  <style>
+    :root {
+      --slate-50: #f8fafc;
+      --slate-100: #f1f5f9;
+      --slate-200: #e2e8f0;
+      --slate-300: #cbd5e1;
+      --slate-400: #94a3b8;
+      --slate-500: #64748b;
+      --slate-600: #475569;
+      --slate-700: #334155;
+      --slate-800: #1e293b;
+      --slate-900: #0f172a;
+      --emerald-50: #ecfdf5;
+      --emerald-200: #a7f3d0;
+      --emerald-700: #047857;
+      --amber-50: #fffbeb;
+      --amber-200: #fde68a;
+      --amber-800: #92400e;
+      --rose-50: #fff1f2;
+      --rose-200: #fecdd3;
+      --rose-700: #be123c;
+      --blue-50: #eff6ff;
+      --blue-200: #bfdbfe;
+      --blue-700: #1d4ed8;
+      --violet-50: #f5f3ff;
+      --violet-200: #ddd6fe;
+      --violet-700: #6d28d9;
+      --radius-xl: 16px;
+      --radius-2xl: 20px;
+      --shadow: 0 1px 2px rgba(15, 23, 42, 0.06), 0 1px 3px rgba(15, 23, 42, 0.08);
+      --max-width: 1280px;
+    }
+
+    * { box-sizing: border-box; }
+    html { -webkit-text-size-adjust: 100%; }
+    body {
+      margin: 0;
+      min-height: 100vh;
+      background: var(--slate-100);
+      color: var(--slate-900);
+      font-family: Inter, ui-sans-serif, system-ui, -apple-system, BlinkMacSystemFont, "Segoe UI", sans-serif;
+    }
+
+    button, input, select, textarea { font: inherit; }
+    button { cursor: pointer; }
+    button:disabled { cursor: not-allowed; }
+
+    .app-header {
+      position: sticky;
+      top: 0;
+      z-index: 20;
+      border-bottom: 1px solid var(--slate-200);
+      background: rgba(255,255,255,0.96);
+      backdrop-filter: blur(10px);
+    }
+
+    .header-inner {
+      max-width: var(--max-width);
+      margin: 0 auto;
+      padding: 14px 12px;
+      display: flex;
+      flex-direction: column;
+      gap: 12px;
+    }
+
+    .brand-row {
+      display: flex;
+      align-items: center;
+      gap: 12px;
+      min-width: 0;
+    }
+
+    .brand-icon {
+      width: 44px;
+      height: 44px;
+      flex: 0 0 auto;
+      border-radius: var(--radius-2xl);
+      background: var(--slate-950, #020617);
+      color: white;
+      display: grid;
+      place-items: center;
+      font-size: 22px;
+      font-weight: 800;
+    }
+
+    h1, h2, h3, p { margin: 0; }
+    h1 {
+      font-size: 20px;
+      line-height: 1.15;
+      letter-spacing: -0.025em;
+      overflow: hidden;
+      text-overflow: ellipsis;
+      white-space: nowrap;
+    }
+    .subtitle {
+      margin-top: 4px;
+      color: var(--slate-500);
+      font-size: 12px;
+      line-height: 1.4;
+    }
+
+    .status-row {
+      display: flex;
+      flex-wrap: wrap;
+      align-items: center;
+      gap: 8px;
+    }
+
+    .badge {
+      display: inline-flex;
+      align-items: center;
+      border: 1px solid var(--slate-200);
+      background: var(--slate-100);
+      color: var(--slate-700);
+      border-radius: 999px;
+      padding: 6px 10px;
+      font-size: 12px;
+      font-weight: 650;
+      line-height: 1.2;
+      max-width: 100%;
+    }
+    .badge.good { background: var(--emerald-50); border-color: var(--emerald-200); color: var(--emerald-700); }
+    .badge.warn { background: var(--amber-50); border-color: var(--amber-200); color: var(--amber-800); }
+    .badge.bad { background: var(--rose-50); border-color: var(--rose-200); color: var(--rose-700); }
+    .badge.blue { background: var(--blue-50); border-color: var(--blue-200); color: var(--blue-700); }
+    .badge.violet { background: var(--violet-50); border-color: var(--violet-200); color: var(--violet-700); }
+
+    .spinner {
+      width: 20px;
+      height: 20px;
+      border: 3px solid var(--slate-300);
+      border-top-color: var(--slate-900);
+      border-radius: 999px;
+      animation: spin 0.8s linear infinite;
+    }
+    @keyframes spin { to { transform: rotate(360deg); } }
+    .hidden { display: none !important; }
+
+    .mobile-tabs {
+      max-width: var(--max-width);
+      margin: 0 auto;
+      display: grid;
+      grid-template-columns: repeat(4, 1fr);
+      gap: 6px;
+      padding: 0 12px 12px;
+    }
+    .tab-btn {
+      min-height: 38px;
+      border: 0;
+      border-radius: 13px;
+      background: var(--slate-100);
+      color: var(--slate-700);
+      font-size: 12px;
+      font-weight: 750;
+    }
+    .tab-btn.active { background: var(--slate-900); color: #fff; }
+
+    main {
+      max-width: var(--max-width);
+      margin: 0 auto;
+      padding: 14px 12px 28px;
+    }
+    .desktop-grid { display: none; }
+    .mobile-panel { display: block; }
+
+    .stack { display: flex; flex-direction: column; gap: 14px; }
+    .card {
+      border: 1px solid var(--slate-200);
+      background: white;
+      border-radius: var(--radius-2xl);
+      box-shadow: var(--shadow);
+      overflow: hidden;
+    }
+    .card-pad { padding: 16px; }
+    .card-head {
+      padding: 16px;
+      border-bottom: 1px solid var(--slate-200);
+      display: flex;
+      flex-direction: column;
+      gap: 10px;
+    }
+    .head-row {
+      display: flex;
+      align-items: center;
+      justify-content: space-between;
+      gap: 10px;
+      min-width: 0;
+    }
+    .head-title { font-weight: 800; }
+    .muted { color: var(--slate-500); font-size: 13px; line-height: 1.45; }
+    .truncate { overflow: hidden; text-overflow: ellipsis; white-space: nowrap; }
+
+    .drop-zone {
+      min-height: 160px;
+      border: 2px dashed var(--slate-300);
+      border-radius: var(--radius-2xl);
+      display: flex;
+      flex-direction: column;
+      align-items: center;
+      justify-content: center;
+      text-align: center;
+      padding: 16px;
+      background: white;
+      transition: 0.18s ease;
+    }
+    .drop-zone.dragging { border-color: var(--slate-900); background: var(--slate-50); }
+    .drop-icon { font-size: 34px; margin-bottom: 10px; color: var(--slate-500); }
+    .grid-2 { display: grid; grid-template-columns: repeat(2, minmax(0, 1fr)); gap: 8px; }
+    .grid-3 { display: grid; grid-template-columns: repeat(1, minmax(0, 1fr)); gap: 8px; }
+
+    .btn {
+      min-height: 42px;
+      border-radius: 13px;
+      padding: 9px 12px;
+      border: 1px solid transparent;
+      font-size: 14px;
+      font-weight: 750;
+      display: inline-flex;
+      align-items: center;
+      justify-content: center;
+      gap: 8px;
+      transition: 0.18s ease;
+      text-align: center;
+    }
+    .btn.primary { background: var(--slate-900); color: white; }
+    .btn.primary:hover:not(:disabled) { background: var(--slate-800); }
+    .btn.secondary { background: white; color: var(--slate-900); border-color: var(--slate-200); }
+    .btn.secondary:hover:not(:disabled) { background: var(--slate-50); }
+    .btn.ghost { background: transparent; color: var(--slate-700); }
+    .btn.ghost:hover:not(:disabled) { background: var(--slate-100); }
+    .btn.danger { background: #e11d48; color: white; }
+    .btn:disabled { opacity: 0.48; }
+    .btn.full { width: 100%; }
+
+    .input, .select, .textarea {
+      width: 100%;
+      border: 1px solid var(--slate-200);
+      border-radius: 13px;
+      padding: 10px 12px;
+      background: white;
+      color: var(--slate-900);
+      outline: none;
+      font-size: 14px;
+    }
+    .input:focus, .select:focus, .textarea:focus { border-color: var(--slate-900); }
+    .textarea { resize: vertical; min-height: 190px; background: var(--slate-50); }
+    label span { display: block; font-size: 13px; font-weight: 750; margin-bottom: 6px; }
+
+    .progress-wrap { margin-top: 14px; }
+    .progress-head { display: flex; justify-content: space-between; font-size: 12px; color: var(--slate-500); margin-bottom: 5px; }
+    .progress-track { height: 8px; background: var(--slate-200); border-radius: 999px; overflow: hidden; }
+    .progress-fill { width: 0%; height: 100%; background: var(--slate-900); transition: width 0.2s ease; }
+
+    .file-list, .log-list { display: flex; flex-direction: column; gap: 8px; max-height: 55vh; overflow: auto; padding-right: 2px; }
+    .file-card {
+      width: 100%;
+      border: 1px solid var(--slate-200);
+      border-radius: var(--radius-2xl);
+      background: white;
+      padding: 12px;
+      text-align: left;
+      display: flex;
+      align-items: flex-start;
+      gap: 10px;
+    }
+    .file-card.active { border-color: var(--slate-900); background: var(--slate-50); }
+    .file-check { margin-top: 3px; width: 16px; height: 16px; }
+    .file-icon { margin-top: 1px; font-size: 16px; width: 20px; text-align: center; flex: 0 0 auto; }
+    .file-meta { min-width: 0; flex: 1; }
+    .file-title { font-size: 14px; font-weight: 800; overflow: hidden; text-overflow: ellipsis; white-space: nowrap; }
+    .file-sub { margin-top: 3px; color: var(--slate-500); font-size: 12px; line-height: 1.35; }
+    .file-badges { margin-top: 8px; display: flex; flex-wrap: wrap; gap: 5px; }
+
+    .preview-shell { min-height: 55vh; background: var(--slate-900); padding: 12px; }
+    .preview-empty, .preview-nonvisual {
+      min-height: 55vh;
+      border: 1px solid var(--slate-700);
+      border-radius: var(--radius-2xl);
+      background: var(--slate-800);
+      color: var(--slate-300);
+      display: flex;
+      align-items: center;
+      justify-content: center;
+      text-align: center;
+      padding: 24px;
+    }
+    .preview-frame { width: 100%; height: 55vh; border: 1px solid var(--slate-700); border-radius: var(--radius-2xl); background: white; }
+    .preview-image-wrap {
+      height: 55vh;
+      display: flex;
+      align-items: center;
+      justify-content: center;
+      border: 1px solid var(--slate-700);
+      border-radius: var(--radius-2xl);
+      background: var(--slate-800);
+      padding: 16px;
+    }
+    .preview-image { max-width: 100%; max-height: 100%; object-fit: contain; border-radius: 12px; }
+    .preview-text {
+      width: 100%;
+      height: 55vh;
+      border: 1px solid var(--slate-700);
+      border-radius: var(--radius-2xl);
+      background: white;
+      color: var(--slate-900);
+      padding: 16px;
+      overflow: auto;
+      white-space: pre-wrap;
+      font-family: ui-monospace, SFMono-Regular, Menlo, Monaco, Consolas, monospace;
+      font-size: 13px;
+      line-height: 1.5;
+    }
+
+    .output-grid { display: grid; grid-template-columns: 1fr; gap: 8px; }
+    .output-card, .log-card {
+      border: 1px solid var(--slate-200);
+      border-radius: var(--radius-2xl);
+      background: var(--slate-50);
+      padding: 12px;
+    }
+    .output-title, .log-title { font-size: 14px; font-weight: 800; overflow: hidden; text-overflow: ellipsis; white-space: nowrap; }
+    .output-sub, .log-sub { margin-top: 4px; color: var(--slate-500); font-size: 12px; line-height: 1.35; }
+    .empty-state {
+      min-height: 150px;
+      border: 1px dashed var(--slate-300);
+      border-radius: var(--radius-2xl);
+      background: var(--slate-50);
+      display: grid;
+      place-items: center;
+      text-align: center;
+      padding: 20px;
+    }
+
+    .tool-block { border-radius: var(--radius-2xl); background: var(--slate-50); padding: 12px; }
+    .tool-title { display: flex; align-items: center; gap: 8px; font-weight: 800; margin-bottom: 8px; }
+    .tool-badges { display: flex; flex-wrap: wrap; gap: 5px; }
+    .note { display: flex; gap: 8px; border-radius: 13px; background: var(--amber-50); color: var(--amber-800); padding: 9px; font-size: 13px; line-height: 1.4; }
+    .success-note { border-radius: 13px; background: var(--emerald-50); color: var(--emerald-700); padding: 10px; font-size: 13px; line-height: 1.45; }
+
+    @media (min-width: 640px) {
+      .grid-3 { grid-template-columns: repeat(2, minmax(0, 1fr)); }
+      .output-grid { grid-template-columns: repeat(2, minmax(0, 1fr)); }
+      h1 { font-size: 24px; }
+      .subtitle { font-size: 13px; }
+    }
+
+    @media (min-width: 1024px) {
+      .header-inner {
+        flex-direction: row;
+        align-items: center;
+        justify-content: space-between;
+        padding-left: 16px;
+        padding-right: 16px;
+      }
+      .mobile-tabs { display: none; }
+      main { padding-left: 16px; padding-right: 16px; }
+      .mobile-panel { display: none; }
+      .desktop-grid {
+        display: grid;
+        grid-template-columns: 320px minmax(0, 1fr) 380px;
+        gap: 16px;
+        align-items: start;
+      }
+      .desktop-middle { display: flex; flex-direction: column; gap: 16px; min-width: 0; }
+      .grid-3 { grid-template-columns: 1fr; }
+      .file-list { max-height: 560px; }
+      .preview-shell, .preview-empty, .preview-nonvisual { min-height: 620px; }
+      .preview-frame, .preview-image-wrap, .preview-text { height: 600px; }
+      .output-grid { grid-template-columns: repeat(2, minmax(0, 1fr)); }
+    }
+  </style>
+</head>
+<body>
+  <header class="app-header">
+    <div class="header-inner">
+      <div class="brand-row">
+        <div class="brand-icon">PDF</div>
+        <div style="min-width:0">
+          <h1>PDF Studio Mobile</h1>
+          <p class="subtitle">Single-file GitHub Pages PDF editor shell, converter, ZIP importer, and mixed-file PDF combiner.</p>
+        </div>
+      </div>
+      <div class="status-row">
+        <span id="statusBadge" class="badge">Import PDFs, images, DOCX, PPTX, TXT, or ZIP files to start.</span>
+        <span id="busySpinner" class="spinner hidden" aria-label="Working"></span>
+      </div>
+    </div>
+    <nav class="mobile-tabs" aria-label="Mobile panels">
+      <button class="tab-btn active" data-panel="files">Files</button>
+      <button class="tab-btn" data-panel="preview">Preview</button>
+      <button class="tab-btn" data-panel="tools">Tools</button>
+      <button class="tab-btn" data-panel="output">Output</button>
+    </nav>
+  </header>
+
+  <main>
+    <div class="mobile-panel">
+      <div id="mobileFiles"></div>
+      <div id="mobilePreview" class="hidden"></div>
+      <div id="mobileTools" class="hidden"></div>
+      <div id="mobileOutput" class="hidden"></div>
+    </div>
+
+    <div class="desktop-grid">
+      <div id="desktopFiles"></div>
+      <div class="desktop-middle">
+        <div id="desktopPreview"></div>
+        <div id="desktopOutput"></div>
+      </div>
+      <div id="desktopTools"></div>
+    </div>
+  </main>
+
+  <template id="filesTemplate">
+    <section class="stack">
+      <div class="card card-pad">
+        <div id="dropZone" class="drop-zone" role="button" tabindex="0">
+          <div class="drop-icon">⬆</div>
+          <p style="font-weight:800">Drop files or ZIP packages</p>
+          <p class="muted" style="margin-top:4px">PDF, images, DOCX, PPTX, TXT, ZIP</p>
+          <input id="fileInput" class="hidden" type="file" accept=".pdf,.zip,.png,.jpg,.jpeg,.webp,.docx,.pptx,.txt" multiple />
+        </div>
+        <div class="grid-2" style="margin-top:12px">
+          <button id="addFilesBtn" class="btn secondary">＋ Add</button>
+          <button id="clearWorkspaceBtn" class="btn ghost">🗑 Clear</button>
+        </div>
+        <div id="progressWrap" class="progress-wrap hidden">
+          <div class="progress-head"><span>Progress</span><span id="progressText">0%</span></div>
+          <div class="progress-track"><div id="progressFill" class="progress-fill"></div></div>
+        </div>
+      </div>
+
+      <div class="card card-pad">
+        <div class="head-row" style="margin-bottom:12px">
+          <h2 class="head-title">Files</h2>
+          <span id="fileCountBadge" class="badge">0</span>
+        </div>
+        <input id="searchInput" class="input" placeholder="Search files" />
+        <div class="grid-2" style="margin-top:10px">
+          <button id="selectAllBtn" class="btn ghost">Select all</button>
+          <button id="deselectAllBtn" class="btn ghost">Deselect</button>
+          <button id="moveUpBtn" class="btn ghost">↑ Move</button>
+          <button id="moveDownBtn" class="btn ghost">↓ Move</button>
+        </div>
+        <button id="removeSelectedBtn" class="btn danger full" style="margin-top:10px">✕ Remove selected files</button>
+        <div id="fileList" class="file-list" style="margin-top:12px"></div>
+      </div>
+    </section>
+  </template>
+
+  <template id="previewTemplate">
+    <section class="stack">
+      <div class="card">
+        <div class="card-head">
+          <div class="head-row">
+            <div style="min-width:0">
+              <h2 class="head-title">Document preview</h2>
+              <p id="previewSub" class="muted truncate">No file selected • No active file</p>
+            </div>
+            <div class="status-row">
+              <span id="activeBadge" class="badge">Idle</span>
+              <span id="selectedBadge" class="badge blue">0 convertible selected</span>
+            </div>
+          </div>
+        </div>
+        <div id="previewShell" class="preview-shell"></div>
+      </div>
+    </section>
+  </template>
+
+  <template id="toolsTemplate">
+    <aside class="stack">
+      <div class="card card-pad">
+        <h2 class="head-title" style="margin-bottom:12px">⚙ Operation settings</h2>
+        <label>
+          <span>PDF page range</span>
+          <input id="pageRangeInput" class="input" value="all" placeholder="all, 1, 1-3, 1,3,5-7" />
+        </label>
+        <p class="muted" style="margin-top:6px;margin-bottom:12px">Applies to active PDF operations and selected PDF files in combined conversion.</p>
+        <div class="grid-2">
+          <label>
+            <span>Rotation</span>
+            <select id="rotationSelect" class="select">
+              <option value="90">90° clockwise</option>
+              <option value="180">180°</option>
+              <option value="270">270° clockwise</option>
+            </select>
+          </label>
+          <label>
+            <span>OCR page</span>
+            <input id="ocrPageInput" class="input" type="number" min="1" value="1" />
+          </label>
+        </div>
+        <label style="margin-top:12px;display:block">
+          <span>Stamp / watermark text</span>
+          <input id="stampTextInput" class="input" value="Reviewed" />
+        </label>
+      </div>
+
+      <div class="card card-pad">
+        <h2 class="head-title" style="margin-bottom:12px">Converter actions</h2>
+        <div class="grid-3">
+          <button id="convertActiveBtn" class="btn primary">＋ Convert active to PDF</button>
+          <button id="imagesToPdfBtn" class="btn secondary">🖼 Images to one PDF</button>
+          <button id="combineSelectedBtn" class="btn secondary">🗜 Combine selected into one PDF</button>
+        </div>
+        <p class="muted" style="margin-top:10px">ZIP files are expanded on upload. Select the extracted contents, then combine them into one PDF.</p>
+      </div>
+
+      <div class="card card-pad">
+        <h2 class="head-title" style="margin-bottom:12px">PDF editor actions</h2>
+        <div class="grid-3">
+          <button id="mergePdfsBtn" class="btn secondary">☰ Merge selected PDFs</button>
+          <button id="extractPagesBtn" class="btn secondary">✂ Extract pages</button>
+          <button id="splitPagesBtn" class="btn secondary">✂ Split pages</button>
+          <button id="deletePagesBtn" class="btn secondary">🗑 Delete pages</button>
+          <button id="rotatePagesBtn" class="btn secondary">↻ Rotate pages</button>
+          <button id="reversePagesBtn" class="btn secondary">⇅ Reverse pages</button>
+          <button id="stampBtn" class="btn secondary">T Stamp / watermark</button>
+          <button id="extractTextBtn" class="btn secondary">⌕ Extract PDF text</button>
+          <button id="ocrBtn" class="btn secondary">✨ Run OCR</button>
+        </div>
+      </div>
+
+      <div class="card card-pad">
+        <h2 class="head-title" style="margin-bottom:12px">Capability map</h2>
+        <div class="stack" style="gap:10px">
+          <div class="tool-block"><div class="tool-title">☰ PDF editor</div><div class="tool-badges"><span class="badge good">Preview</span><span class="badge warn">Merge needs PDF engine</span><span class="badge warn">Extract needs PDF engine</span><span class="badge warn">Rotate needs PDF engine</span><span class="badge good">Text extraction from TXT/Office text</span></div></div>
+          <div class="tool-block"><div class="tool-title">＋ PDF converter</div><div class="tool-badges"><span class="badge good">Images to PDF</span><span class="badge good">TXT to PDF</span><span class="badge good">DOCX text to PDF</span><span class="badge good">PPTX text to PDF</span><span class="badge warn">Existing PDF page copy needs PDF engine</span></div></div>
+          <div class="tool-block"><div class="tool-title">🗜 ZIP workflow</div><div class="tool-badges"><span class="badge good">Upload ZIP</span><span class="badge good">Expand supported entries</span><span class="badge good">Combine supported text/images</span><span class="badge warn">Compressed ZIP requires browser DecompressionStream</span></div></div>
+          <div class="tool-block"><div class="tool-title">✨ Optical Character Recognition (OCR)</div><div class="tool-badges"><span class="badge warn">Requires embedded OCR engine</span><span class="badge warn">No CDN/server allowed</span></div></div>
+        </div>
+      </div>
+
+      <div class="card card-pad">
+        <h2 class="head-title" style="margin-bottom:12px">Production notes</h2>
+        <div class="stack" style="gap:8px">
+          <div class="success-note">This file has no external JavaScript, no Cascading Style Sheets (CSS) files, no Node Package Manager (npm), no build step, and no backend. It can be uploaded as <strong>index.html</strong> to GitHub Pages.</div>
+          <div class="note"><span>⚠</span><span>True Portable Document Format (PDF) merge, extraction, rotation, deletion, and stamping require a PDF parser/writer engine. A single offline file cannot include that engine unless the library source is bundled into this file.</span></div>
+          <div class="note"><span>⚠</span><span>Exact Microsoft Word and Microsoft PowerPoint visual rendering requires a server-side renderer such as LibreOffice, Microsoft Graph, or a commercial document engine.</span></div>
+          <div class="note"><span>⚠</span><span>Optical Character Recognition (OCR) requires an OCR engine such as Tesseract.js. Loading it from a Content Delivery Network (CDN) would violate the no-external-server requirement.</span></div>
+        </div>
+      </div>
+    </aside>
+  </template>
+
+  <template id="outputTemplate">
+    <section class="stack">
+      <div class="card card-pad">
+        <div class="head-row" style="margin-bottom:12px">
+          <h2 class="head-title">Output files</h2>
+          <div class="status-row"><span id="outputCountBadge" class="badge">0</span><button id="clearOutputsBtn" class="btn ghost">Clear</button></div>
+        </div>
+        <div id="outputList" class="output-grid"></div>
+      </div>
+
+      <div class="card card-pad">
+        <div class="head-row" style="margin-bottom:12px">
+          <h2 class="head-title">Recognized / extracted text</h2>
+          <button id="copyTextBtn" class="btn ghost">Copy</button>
+        </div>
+        <textarea id="textOutput" class="textarea" placeholder="Extracted text output appears here. Optical Character Recognition (OCR) needs an embedded OCR engine and is disabled in this no-external-dependency build."></textarea>
+      </div>
+
+      <div class="card card-pad">
+        <div class="head-row" style="margin-bottom:12px">
+          <h2 class="head-title">Conversion log</h2>
+          <span id="logCountBadge" class="badge">0</span>
+        </div>
+        <div id="conversionLog" class="log-list"></div>
+      </div>
+    </section>
+  </template>
+
+  <script>
+    "use strict";
+
+    const ACCEPTED_EXTENSIONS = new Set(["pdf", "png", "jpg", "jpeg", "webp", "docx", "pptx", "txt"]);
+    const A4 = { width: 595.28, height: 841.89 };
+
+    const state = {
+      documents: [],
+      selectedIds: new Set(),
+      activeId: null,
+      results: [],
+      conversionLog: [],
+      textOutput: "",
+      pageRange: "all",
+      rotation: 90,
+      ocrPage: 1,
+      stampText: "Reviewed",
+      query: "",
+      busy: false,
+      progress: 0,
+      status: { tone: "neutral", text: "Import PDFs, images, DOCX, PPTX, TXT, or ZIP files to start." },
+      mobilePanel: "files"
+    };
+
+    const refs = {};
+
+    function $(selector, root = document) { return root.querySelector(selector); }
+    function $all(selector, root = document) { return Array.from(root.querySelectorAll(selector)); }
+
+    function cloneTemplate(id) {
+      return document.getElementById(id).content.cloneNode(true);
+    }
+
+    function mountTemplates() {
+      document.getElementById("mobileFiles").appendChild(cloneTemplate("filesTemplate"));
+      document.getElementById("mobilePreview").appendChild(cloneTemplate("previewTemplate"));
+      document.getElementById("mobileTools").appendChild(cloneTemplate("toolsTemplate"));
+      document.getElementById("mobileOutput").appendChild(cloneTemplate("outputTemplate"));
+      document.getElementById("desktopFiles").appendChild(cloneTemplate("filesTemplate"));
+      document.getElementById("desktopPreview").appendChild(cloneTemplate("previewTemplate"));
+      document.getElementById("desktopTools").appendChild(cloneTemplate("toolsTemplate"));
+      document.getElementById("desktopOutput").appendChild(cloneTemplate("outputTemplate"));
+    }
+
+    function collectRefs() {
+      const ids = [
+        "dropZone", "fileInput", "addFilesBtn", "clearWorkspaceBtn", "progressWrap", "progressText", "progressFill",
+        "fileCountBadge", "searchInput", "selectAllBtn", "deselectAllBtn", "moveUpBtn", "moveDownBtn", "removeSelectedBtn", "fileList",
+        "previewSub", "activeBadge", "selectedBadge", "previewShell",
+        "pageRangeInput", "rotationSelect", "ocrPageInput", "stampTextInput",
+        "convertActiveBtn", "imagesToPdfBtn", "combineSelectedBtn", "mergePdfsBtn", "extractPagesBtn", "splitPagesBtn", "deletePagesBtn", "rotatePagesBtn", "reversePagesBtn", "stampBtn", "extractTextBtn", "ocrBtn",
+        "outputCountBadge", "clearOutputsBtn", "outputList", "copyTextBtn", "textOutput", "logCountBadge", "conversionLog"
+      ];
+      ids.forEach(id => refs[id] = $all("#" + id));
+    }
+
+    function setStatus(text, tone = "neutral") {
+      state.status = { text, tone };
+      renderGlobal();
+    }
+
+    function setBusy(value) {
+      state.busy = value;
+      renderGlobal();
+    }
+
+    function setProgress(value) {
+      state.progress = Math.max(0, Math.min(100, Math.round(value || 0)));
+      refs.progressWrap?.forEach(el => el.classList.toggle("hidden", !state.busy));
+      refs.progressText?.forEach(el => el.textContent = state.progress + "%");
+      refs.progressFill?.forEach(el => el.style.width = state.progress + "%");
+    }
+
+    function formatBytes(bytes) {
+      if (!bytes && bytes !== 0) return "—";
+      const units = ["B", "KB", "MB", "GB"];
+      let value = bytes;
+      let index = 0;
+      while (value >= 1024 && index < units.length - 1) { value /= 1024; index++; }
+      return value.toFixed(value >= 10 || index === 0 ? 0 : 1) + " " + units[index];
+    }
+
+    function extensionOf(name = "") {
+      const clean = String(name).toLowerCase().split("?")[0];
+      const index = clean.lastIndexOf(".");
+      return index >= 0 ? clean.slice(index + 1) : "";
+    }
+
+    function safeBaseName(name = "document") {
+      return String(name).replace(/\.[^.]+$/i, "").replace(/[^a-z0-9-_]+/gi, "-").replace(/^-+|-+$/g, "") || "document";
+    }
+
+    function mimeFromName(name = "") {
+      const ext = extensionOf(name);
+      return ({
+        pdf: "application/pdf",
+        zip: "application/zip",
+        png: "image/png",
+        jpg: "image/jpeg",
+        jpeg: "image/jpeg",
+        webp: "image/webp",
+        docx: "application/vnd.openxmlformats-officedocument.wordprocessingml.document",
+        pptx: "application/vnd.openxmlformats-officedocument.presentationml.presentation",
+        txt: "text/plain"
+      })[ext] || "application/octet-stream";
+    }
+
+    function isPdf(file) { return file?.type === "application/pdf" || extensionOf(file?.name) === "pdf"; }
+    function isZip(file) { return ["zip"].includes(extensionOf(file?.name)) || file?.type === "application/zip" || file?.type === "application/x-zip-compressed"; }
+    function isImage(file) { return file?.type?.startsWith("image/") || ["png", "jpg", "jpeg", "webp"].includes(extensionOf(file?.name)); }
+    function isDocx(file) { return extensionOf(file?.name) === "docx"; }
+    function isPptx(file) { return extensionOf(file?.name) === "pptx"; }
+    function isTxt(file) { return file?.type === "text/plain" || extensionOf(file?.name) === "txt"; }
+    function isConvertible(file) { return isPdf(file) || isImage(file) || isDocx(file) || isPptx(file) || isTxt(file); }
+
+    function fileKind(file) {
+      if (isPdf(file)) return "Portable Document Format (PDF)";
+      if (isZip(file)) return "ZIP archive";
+      if (isImage(file)) return "Image";
+      if (isDocx(file)) return "Microsoft Word Open XML Document (DOCX)";
+      if (isPptx(file)) return "Microsoft PowerPoint Open XML Presentation (PPTX)";
+      if (isTxt(file)) return "Plain text (TXT)";
+      return "Unsupported";
+    }
+
+    function fileIcon(file) {
+      if (isZip(file)) return "🗜";
+      if (isImage(file)) return "🖼";
+      if (isPdf(file)) return "📄";
+      if (isDocx(file)) return "W";
+      if (isPptx(file)) return "P";
+      if (isTxt(file)) return "T";
+      return "?";
+    }
+
+    function activeDoc() { return state.documents.find(doc => doc.id === state.activeId) || state.documents[0] || null; }
+    function selectedDocs() { return state.documents.filter(doc => state.selectedIds.has(doc.id)); }
+    function selectedConvertible() { return selectedDocs().filter(doc => isConvertible(doc.file)); }
+    function selectedImages() { return selectedDocs().filter(doc => isImage(doc.file)); }
+    function selectedPdfs() { return selectedDocs().filter(doc => isPdf(doc.file)); }
+
+    function parsePageRange(input, totalPages) {
+      if (!totalPages || totalPages < 1) return [];
+      const raw = String(input || "").trim();
+      if (!raw || raw.toLowerCase() === "all") return Array.from({ length: totalPages }, (_, i) => i);
+      const pages = [];
+      raw.split(",").map(x => x.trim()).filter(Boolean).forEach(chunk => {
+        if (chunk.includes("-")) {
+          const [a, b] = chunk.split("-").map(x => Number(x.trim()));
+          if (!Number.isFinite(a) || !Number.isFinite(b)) return;
+          const start = Math.max(1, Math.min(a, b));
+          const end = Math.min(totalPages, Math.max(a, b));
+          for (let p = start; p <= end; p++) pages.push(p - 1);
+        } else {
+          const p = Number(chunk);
+          if (Number.isFinite(p) && p >= 1 && p <= totalPages) pages.push(p - 1);
+        }
+      });
+      return Array.from(new Set(pages)).sort((a, b) => a - b);
+    }
+
+    function makeObjectUrl(blob, name) {
+      return { id: crypto.randomUUID(), name, blob, size: blob.size, url: URL.createObjectURL(blob), createdAt: new Date().toLocaleString() };
+    }
+
+    function escapeHtml(text) {
+      return String(text).replace(/[&<>"]/g, ch => ({ "&": "&amp;", "<": "&lt;", ">": "&gt;", '"': "&quot;" })[ch]);
+    }
+
+    function escapePdfText(text) {
+      return String(text)
+        .normalize("NFKD")
+        .replace(/[\u0300-\u036f]/g, "")
+        .replace(/[^\x09\x0A\x0D\x20-\x7E]/g, "?")
+        .replace(/\\/g, "\\\\")
+        .replace(/\(/g, "\\(")
+        .replace(/\)/g, "\\)");
+    }
+
+    function wrapText(text, maxChars = 88) {
+      const lines = [];
+      String(text || "").replace(/\r/g, "").split("\n").forEach(paragraph => {
+        if (!paragraph.trim()) { lines.push(""); return; }
+        let line = "";
+        paragraph.split(/\s+/).forEach(word => {
+          const test = line ? line + " " + word : word;
+          if (test.length <= maxChars) line = test;
+          else { if (line) lines.push(line); line = word; }
+        });
+        if (line) lines.push(line);
+      });
+      return lines;
+    }
+
+    function bytesFromString(str) { return new TextEncoder().encode(str); }
+    function concatBytes(parts) {
+      const byteParts = parts.map(part => typeof part === "string" ? bytesFromString(part) : part);
+      const total = byteParts.reduce((sum, part) => sum + part.length, 0);
+      const output = new Uint8Array(total);
+      let offset = 0;
+      byteParts.forEach(part => { output.set(part, offset); offset += part.length; });
+      return output;
+    }
+
+    function dataUrlToBytes(dataUrl) {
+      const base64 = String(dataUrl).split(",")[1] || "";
+      const binary = atob(base64);
+      const bytes = new Uint8Array(binary.length);
+      for (let i = 0; i < binary.length; i++) bytes[i] = binary.charCodeAt(i);
+      return bytes;
+    }
+
+    async function imageToJpegData(file) {
+      const dataUrl = await new Promise((resolve, reject) => {
+        const reader = new FileReader();
+        reader.onload = () => resolve(reader.result);
+        reader.onerror = () => reject(reader.error);
+        reader.readAsDataURL(file);
+      });
+      const image = await new Promise((resolve, reject) => {
+        const img = new Image();
+        img.onload = () => resolve(img);
+        img.onerror = reject;
+        img.src = dataUrl;
+      });
+      const canvas = document.createElement("canvas");
+      canvas.width = image.naturalWidth || image.width;
+      canvas.height = image.naturalHeight || image.height;
+      const context = canvas.getContext("2d");
+      context.fillStyle = "#ffffff";
+      context.fillRect(0, 0, canvas.width, canvas.height);
+      context.drawImage(image, 0, 0);
+      const jpegUrl = canvas.toDataURL("image/jpeg", 0.92);
+      return { bytes: dataUrlToBytes(jpegUrl), width: canvas.width, height: canvas.height };
+    }
+
+    function buildPdf(pages) {
+      const objects = new Map();
+      let nextId = 1;
+      const pagesId = nextId++;
+      const fontId = nextId++;
+      const pageIds = [];
+      objects.set(fontId, "<< /Type /Font /Subtype /Type1 /BaseFont /Helvetica >>");
+
+      pages.forEach((page, pageIndex) => {
+        if (page.type === "image") {
+          const imageId = nextId++;
+          const contentId = nextId++;
+          const pageId = nextId++;
+          pageIds.push(pageId);
+
+          const margin = 36;
+          const maxW = A4.width - margin * 2;
+          const maxH = A4.height - margin * 2;
+          const scale = Math.min(maxW / page.width, maxH / page.height, 1);
+          const drawW = page.width * scale;
+          const drawH = page.height * scale;
+          const x = (A4.width - drawW) / 2;
+          const y = (A4.height - drawH) / 2;
+          const imageName = "/Im" + pageIndex;
+          const content = `q\n${drawW.toFixed(2)} 0 0 ${drawH.toFixed(2)} ${x.toFixed(2)} ${y.toFixed(2)} cm\n${imageName} Do\nQ\n`;
+          objects.set(imageId, [
+            `<< /Type /XObject /Subtype /Image /Width ${page.width} /Height ${page.height} /ColorSpace /DeviceRGB /BitsPerComponent 8 /Filter /DCTDecode /Length ${page.bytes.length} >>\nstream\n`,
+            page.bytes,
+            "\nendstream"
+          ]);
+          objects.set(contentId, `<< /Length ${bytesFromString(content).length} >>\nstream\n${content}endstream`);
+          objects.set(pageId, `<< /Type /Page /Parent ${pagesId} 0 R /MediaBox [0 0 ${A4.width} ${A4.height}] /Resources << /XObject << ${imageName} ${imageId} 0 R >> >> /Contents ${contentId} 0 R >>`);
+        } else {
+          const contentId = nextId++;
+          const pageId = nextId++;
+          pageIds.push(pageId);
+          let y = 792;
+          const lines = page.lines || [];
+          const commands = ["BT", "/F1 16 Tf", `54 ${y} Td`, `(${escapePdfText(page.title || "Document")}) Tj`, "/F1 10.5 Tf"];
+          y -= 26;
+          lines.forEach(line => {
+            if (y < 48) return;
+            commands.push(`1 0 0 1 54 ${y.toFixed(2)} Tm`);
+            commands.push(`(${escapePdfText(line).slice(0, 1000)}) Tj`);
+            y -= 15;
+          });
+          commands.push("ET");
+          const content = commands.join("\n") + "\n";
+          objects.set(contentId, `<< /Length ${bytesFromString(content).length} >>\nstream\n${content}endstream`);
+          objects.set(pageId, `<< /Type /Page /Parent ${pagesId} 0 R /MediaBox [0 0 ${A4.width} ${A4.height}] /Resources << /Font << /F1 ${fontId} 0 R >> >> /Contents ${contentId} 0 R >>`);
+        }
+      });
+
+      objects.set(pagesId, `<< /Type /Pages /Kids [${pageIds.map(id => id + " 0 R").join(" ")}] /Count ${pageIds.length} >>`);
+      const catalogId = nextId++;
+      objects.set(catalogId, `<< /Type /Catalog /Pages ${pagesId} 0 R >>`);
+
+      const chunks = [];
+      const offsets = [];
+      let offset = 0;
+      function push(part) {
+        const bytes = typeof part === "string" ? bytesFromString(part) : part;
+        chunks.push(bytes);
+        offset += bytes.length;
+      }
+
+      push("%PDF-1.4\n%\xE2\xE3\xCF\xD3\n");
+      for (let id = 1; id < nextId; id++) {
+        offsets[id] = offset;
+        push(`${id} 0 obj\n`);
+        const obj = objects.get(id);
+        if (Array.isArray(obj)) obj.forEach(push); else push(obj || "<<>>");
+        push("\nendobj\n");
+      }
+      const xrefOffset = offset;
+      push(`xref\n0 ${nextId}\n`);
+      push("0000000000 65535 f \n");
+      for (let id = 1; id < nextId; id++) push(String(offsets[id]).padStart(10, "0") + " 00000 n \n");
+      push(`trailer\n<< /Size ${nextId} /Root ${catalogId} 0 R >>\nstartxref\n${xrefOffset}\n%%EOF`);
+      return new Blob(chunks, { type: "application/pdf" });
+    }
+
+    function textToPdfPages(title, text) {
+      const allLines = wrapText(text || "No extractable text found.", 88);
+      const pages = [];
+      for (let i = 0; i < allLines.length || i === 0; i += 48) {
+        pages.push({ type: "text", title: i === 0 ? title : title + " continued", lines: allLines.slice(i, i + 48) });
+      }
+      return pages;
+    }
+
+    async function fileToPdfPages(doc) {
+      const file = doc.file;
+      if (isImage(file)) {
+        const image = await imageToJpegData(file);
+        return [{ type: "image", ...image, title: file.name }];
+      }
+      if (isTxt(file)) {
+        return textToPdfPages("Converted from " + file.name, await file.text());
+      }
+      if (isDocx(file)) {
+        return textToPdfPages("Converted from " + file.name, await extractDocxText(file));
+      }
+      if (isPptx(file)) {
+        return textToPdfPages("Converted from " + file.name, await extractPptxText(file));
+      }
+      if (isPdf(file)) {
+        return textToPdfPages("PDF placeholder: " + file.name, "This no-dependency single-file build can preview existing PDFs, but cannot copy, edit, or merge existing PDF page objects without a PDF parser/writer engine. Use an image, TXT, DOCX, or PPTX file for native conversion in this offline build.");
+      }
+      throw new Error("Unsupported file type.");
+    }
+
+    async function createPdfFromDocuments(docs, filename) {
+      const pages = [];
+      const log = [];
+      for (let i = 0; i < docs.length; i++) {
+        const doc = docs[i];
+        try {
+          const before = pages.length;
+          const docPages = await fileToPdfPages(doc);
+          pages.push(...docPages);
+          log.push({ name: doc.name, status: "Converted", detail: `${pages.length - before} page(s)` });
+        } catch (error) {
+          log.push({ name: doc.name, status: "Skipped", detail: error.message });
+        }
+        setProgress(((i + 1) / Math.max(docs.length, 1)) * 100);
+      }
+      if (!pages.length) throw new Error("No pages were produced.");
+      const blob = buildPdf(pages);
+      state.results.unshift(makeObjectUrl(blob, filename));
+      state.conversionLog = log;
+      switchMobilePanel("output");
+    }
+
+    async function readZipEntries(file) {
+      const buffer = await file.arrayBuffer();
+      const view = new DataView(buffer);
+      const bytes = new Uint8Array(buffer);
+      let eocd = -1;
+      const start = Math.max(0, bytes.length - 66000);
+      for (let i = bytes.length - 22; i >= start; i--) {
+        if (view.getUint32(i, true) === 0x06054b50) { eocd = i; break; }
+      }
+      if (eocd < 0) throw new Error("Invalid ZIP file.");
+      const entryCount = view.getUint16(eocd + 10, true);
+      const centralOffset = view.getUint32(eocd + 16, true);
+      const decoder = new TextDecoder("utf-8");
+      const entries = [];
+      let ptr = centralOffset;
+
+      for (let i = 0; i < entryCount; i++) {
+        if (view.getUint32(ptr, true) !== 0x02014b50) throw new Error("Invalid ZIP central directory.");
+        const flags = view.getUint16(ptr + 8, true);
+        const method = view.getUint16(ptr + 10, true);
+        const compressedSize = view.getUint32(ptr + 20, true);
+        const uncompressedSize = view.getUint32(ptr + 24, true);
+        const nameLen = view.getUint16(ptr + 28, true);
+        const extraLen = view.getUint16(ptr + 30, true);
+        const commentLen = view.getUint16(ptr + 32, true);
+        const localOffset = view.getUint32(ptr + 42, true);
+        const nameBytes = bytes.slice(ptr + 46, ptr + 46 + nameLen);
+        const name = decoder.decode(nameBytes);
+        ptr += 46 + nameLen + extraLen + commentLen;
+
+        if (name.endsWith("/") || name.startsWith("__MACOSX/") || name.split("/").pop().startsWith(".")) continue;
+        if (flags & 1) continue;
+
+        const localNameLen = view.getUint16(localOffset + 26, true);
+        const localExtraLen = view.getUint16(localOffset + 28, true);
+        const dataStart = localOffset + 30 + localNameLen + localExtraLen;
+        const compressed = bytes.slice(dataStart, dataStart + compressedSize);
+        let blob;
+        if (method === 0) {
+          blob = new Blob([compressed]);
+        } else if (method === 8) {
+          if (!("DecompressionStream" in window)) throw new Error("Compressed ZIP entries need browser DecompressionStream support.");
+          const stream = new Blob([compressed]).stream().pipeThrough(new DecompressionStream("deflate-raw"));
+          blob = await new Response(stream).blob();
+        } else {
+          continue;
+        }
+        entries.push({ name, blob, size: uncompressedSize });
+      }
+      return entries;
+    }
+
+    async function extractDocxText(file) {
+      const entries = await readZipEntries(file);
+      const entry = entries.find(item => item.name === "word/document.xml");
+      if (!entry) return "No readable DOCX text extracted.";
+      const xml = await entry.blob.text();
+      const doc = new DOMParser().parseFromString(xml, "application/xml");
+      const nodes = Array.from(doc.getElementsByTagName("w:t"));
+      const text = nodes.map(node => node.textContent).join(" ").replace(/\s+/g, " ").trim();
+      return text || "No readable DOCX text extracted.";
+    }
+
+    async function extractPptxText(file) {
+      const entries = await readZipEntries(file);
+      const slides = entries
+        .filter(item => /^ppt\/slides\/slide\d+\.xml$/i.test(item.name))
+        .sort((a, b) => Number(a.name.match(/slide(\d+)\.xml/i)?.[1] || 0) - Number(b.name.match(/slide(\d+)\.xml/i)?.[1] || 0));
+      const parts = [];
+      for (let i = 0; i < slides.length; i++) {
+        const xml = await slides[i].blob.text();
+        const doc = new DOMParser().parseFromString(xml, "application/xml");
+        const nodes = Array.from(doc.getElementsByTagName("a:t"));
+        const text = nodes.map(node => node.textContent).join(" ").replace(/\s+/g, " ").trim();
+        parts.push(`Slide ${i + 1}\n${text || "No extractable slide text."}`);
+      }
+      return parts.length ? parts.join("\n\n") : "No readable PPTX slide text extracted.";
+    }
+
+    async function buildDocumentRecord(file, source = "Direct upload", originalPath = "") {
+      return {
+        id: crypto.randomUUID(),
+        file,
+        name: file.name,
+        size: file.size,
+        type: file.type || mimeFromName(file.name),
+        kind: fileKind(file),
+        pages: isPdf(file) ? null : null,
+        encrypted: false,
+        convertible: isConvertible(file),
+        url: URL.createObjectURL(file),
+        source,
+        originalPath,
+        importedAt: new Date().toLocaleTimeString()
+      };
+    }
+
+    async function expandZip(file) {
+      const entries = await readZipEntries(file);
+      const supported = [];
+      for (let i = 0; i < entries.length; i++) {
+        const entry = entries[i];
+        const base = entry.name.split("/").pop();
+        const ext = extensionOf(base);
+        if (!ACCEPTED_EXTENSIONS.has(ext)) continue;
+        const child = new File([entry.blob], base, { type: mimeFromName(base), lastModified: Date.now() });
+        supported.push({ file: child, originalPath: entry.name, source: "ZIP: " + file.name });
+        setProgress(((i + 1) / Math.max(entries.length, 1)) * 100);
+      }
+      return supported;
+    }
+
+    async function ingestFiles(fileList) {
+      const files = Array.from(fileList || []);
+      if (!files.length) return;
+      setBusy(true);
+      setProgress(0);
+      setStatus("Reading uploads and expanding ZIP files...", "blue");
+      try {
+        const items = [];
+        const unsupported = [];
+        let zipChildCount = 0;
+
+        for (const file of files) {
+          if (isZip(file)) {
+            try {
+              const expanded = await expandZip(file);
+              zipChildCount += expanded.length;
+              items.push(...expanded);
+            } catch (error) {
+              unsupported.push(`${file.name} (${error.message})`);
+            }
+          } else if (isConvertible(file)) {
+            items.push({ file, source: "Direct upload", originalPath: file.name });
+          } else {
+            unsupported.push(file.name);
+          }
+        }
+
+        const records = [];
+        for (let i = 0; i < items.length; i++) {
+          records.push(await buildDocumentRecord(items[i].file, items[i].source, items[i].originalPath));
+          setProgress(((i + 1) / Math.max(items.length, 1)) * 100);
+        }
+
+        if (!records.length) {
+          setStatus(unsupported.length ? "No supported files found. Unsupported: " + unsupported.slice(0, 3).join(", ") : "No supported files found.", "warn");
+          return;
+        }
+
+        state.documents.push(...records);
+        if (!state.activeId && state.documents[0]) state.activeId = state.documents[0].id;
+        records.forEach(doc => state.selectedIds.add(doc.id));
+        setStatus(`Imported ${records.length} supported file${records.length === 1 ? "" : "s"}${zipChildCount ? `, including ${zipChildCount} from ZIP.` : "."}`, "good");
+        switchMobilePanel("files");
+      } catch (error) {
+        setStatus("Import failed: " + error.message, "bad");
+      } finally {
+        setBusy(false);
+        setProgress(0);
+        refs.fileInput?.forEach(input => input.value = "");
+        render();
+      }
+    }
+
+    function unsupportedPdfEngine(action) {
+      setStatus(`${action} requires a Portable Document Format (PDF) parser/writer engine. This single-file no-external-dependency build can preview PDFs but cannot safely rewrite existing PDF objects.`, "warn");
+      state.conversionLog = [{ name: action, status: "Not available", detail: "Requires bundled PDF engine or backend renderer." }];
+      switchMobilePanel("output");
+      render();
+    }
+
+    async function convertActive() {
+      const doc = activeDoc();
+      if (!doc || !isConvertible(doc.file)) return setStatus("Choose an active convertible file first.", "warn");
+      setBusy(true); setProgress(10); setStatus("Converting " + doc.name + " to PDF...", "blue");
+      try {
+        await createPdfFromDocuments([doc], safeBaseName(doc.name) + "-converted.pdf");
+        setStatus("Converted active file to PDF.", "good");
+      } catch (error) { setStatus("Conversion failed: " + error.message, "bad"); }
+      finally { setBusy(false); setProgress(0); render(); }
+    }
+
+    async function imagesToPdf() {
+      const docs = selectedImages();
+      if (!docs.length) return setStatus("Select at least one image file.", "warn");
+      setBusy(true); setProgress(0); setStatus("Converting selected images into one PDF...", "blue");
+      try {
+        await createPdfFromDocuments(docs, "images-to-pdf-" + Date.now() + ".pdf");
+        setStatus("Converted selected images into one PDF.", "good");
+      } catch (error) { setStatus("Images-to-PDF failed: " + error.message, "bad"); }
+      finally { setBusy(false); setProgress(0); render(); }
+    }
+
+    async function combineSelected() {
+      const docs = selectedConvertible();
+      if (!docs.length) return setStatus("Select at least one convertible file.", "warn");
+      setBusy(true); setProgress(0); setStatus("Combining selected supported files into one PDF...", "blue");
+      try {
+        await createPdfFromDocuments(docs, "combined-converted-" + Date.now() + ".pdf");
+        setStatus("Combined selected files into one PDF. Existing PDFs are represented by placeholder pages in this no-PDF-engine build.", "good");
+      } catch (error) { setStatus("Combined conversion failed: " + error.message, "bad"); }
+      finally { setBusy(false); setProgress(0); render(); }
+    }
+
+    async function extractActiveText() {
+      const doc = activeDoc();
+      if (!doc) return setStatus("Choose an active file first.", "warn");
+      setBusy(true); setProgress(35); setStatus("Extracting available text...", "blue");
+      try {
+        let text = "";
+        if (isTxt(doc.file)) text = await doc.file.text();
+        else if (isDocx(doc.file)) text = await extractDocxText(doc.file);
+        else if (isPptx(doc.file)) text = await extractPptxText(doc.file);
+        else if (isPdf(doc.file)) text = "Embedded PDF text extraction requires a PDF text parser. This no-external-dependency build cannot parse PDF text objects.";
+        else if (isImage(doc.file)) text = "Image text extraction requires Optical Character Recognition (OCR). This build has no embedded OCR engine.";
+        else text = "No text extractor available for this file type.";
+        state.textOutput = text;
+        const blob = new Blob([text], { type: "text/plain;charset=utf-8" });
+        state.results.unshift(makeObjectUrl(blob, safeBaseName(doc.name) + "-text.txt"));
+        state.conversionLog = [{ name: doc.name, status: "Extracted", detail: "Available text extraction complete." }];
+        setStatus("Text extraction complete.", "good");
+        switchMobilePanel("output");
+      } catch (error) { setStatus("Text extraction failed: " + error.message, "bad"); }
+      finally { setBusy(false); setProgress(0); render(); }
+    }
+
+    function clearWorkspace() {
+      state.documents.forEach(doc => URL.revokeObjectURL(doc.url));
+      state.results.forEach(result => URL.revokeObjectURL(result.url));
+      state.documents = [];
+      state.selectedIds.clear();
+      state.activeId = null;
+      state.results = [];
+      state.conversionLog = [];
+      state.textOutput = "";
+      state.query = "";
+      setStatus("Workspace cleared.", "neutral");
+      render();
+    }
+
+    function clearOutputs() {
+      state.results.forEach(result => URL.revokeObjectURL(result.url));
+      state.results = [];
+      state.conversionLog = [];
+      state.textOutput = "";
+      setStatus("Output panel cleared.", "neutral");
+      render();
+    }
+
+    function removeSelectedFiles() {
+      const ids = state.selectedIds;
+      const removed = state.documents.filter(doc => ids.has(doc.id));
+      removed.forEach(doc => URL.revokeObjectURL(doc.url));
+      state.documents = state.documents.filter(doc => !ids.has(doc.id));
+      state.selectedIds.clear();
+      if (!state.documents.some(doc => doc.id === state.activeId)) state.activeId = state.documents[0]?.id || null;
+      setStatus(`Removed ${removed.length} file${removed.length === 1 ? "" : "s"}.`, "neutral");
+      render();
+    }
+
+    function moveActive(direction) {
+      const doc = activeDoc();
+      if (!doc) return;
+      const index = state.documents.findIndex(item => item.id === doc.id);
+      const next = index + direction;
+      if (next < 0 || next >= state.documents.length) return;
+      [state.documents[index], state.documents[next]] = [state.documents[next], state.documents[index]];
+      render();
+    }
+
+    function switchMobilePanel(panel) {
+      state.mobilePanel = panel;
+      $all(".tab-btn").forEach(btn => btn.classList.toggle("active", btn.dataset.panel === panel));
+      ["files", "preview", "tools", "output"].forEach(name => {
+        const el = document.getElementById("mobile" + name[0].toUpperCase() + name.slice(1));
+        if (el) el.classList.toggle("hidden", name !== panel);
+      });
+    }
+
+    function renderGlobal() {
+      const status = document.getElementById("statusBadge");
+      status.textContent = state.status.text;
+      status.className = "badge " + (state.status.tone || "");
+      document.getElementById("busySpinner").classList.toggle("hidden", !state.busy);
+      refs.progressWrap?.forEach(el => el.classList.toggle("hidden", !state.busy));
+      refs.progressText?.forEach(el => el.textContent = state.progress + "%");
+      refs.progressFill?.forEach(el => el.style.width = state.progress + "%");
+    }
+
+    async function renderPreviewShell(shell, doc) {
+      shell.innerHTML = "";
+      if (!doc) {
+        shell.innerHTML = `<div class="preview-empty"><div><div style="font-size:38px;margin-bottom:10px">👁</div><p style="font-weight:800">Import a PDF, image, Office file, TXT, or ZIP package.</p><p class="muted" style="color:#cbd5e1;margin-top:4px">Supported ZIP contents are expanded into the file list.</p></div></div>`;
+        return;
+      }
+      if (isPdf(doc.file)) {
+        shell.innerHTML = `<iframe class="preview-frame" title="PDF preview" src="${doc.url}"></iframe>`;
+        return;
+      }
+      if (isImage(doc.file)) {
+        shell.innerHTML = `<div class="preview-image-wrap"><img class="preview-image" src="${doc.url}" alt="${escapeHtml(doc.name)}"></div>`;
+        return;
+      }
+      if (isTxt(doc.file)) {
+        const pre = document.createElement("div");
+        pre.className = "preview-text";
+        pre.textContent = "Loading text preview...";
+        shell.appendChild(pre);
+        try { pre.textContent = await doc.file.text(); } catch { pre.textContent = "Unable to read text preview."; }
+        return;
+      }
+      shell.innerHTML = `<div class="preview-nonvisual"><div><div style="font-size:44px;margin-bottom:10px">📄</div><p style="font-size:18px;font-weight:800">${escapeHtml(fileKind(doc.file))} preview shell</p><p class="muted" style="color:#cbd5e1;margin-top:8px">This file can be converted to a text-based PDF. Exact Office layout fidelity requires a backend renderer.</p></div></div>`;
+    }
+
+    function renderFiles() {
+      const term = state.query.trim().toLowerCase();
+      const docs = term ? state.documents.filter(doc => [doc.name, doc.kind, doc.source, doc.originalPath].join(" ").toLowerCase().includes(term)) : state.documents;
+      refs.fileCountBadge?.forEach(el => el.textContent = state.documents.length);
+      refs.searchInput?.forEach(input => { if (document.activeElement !== input) input.value = state.query; });
+      refs.fileList?.forEach(list => {
+        list.innerHTML = "";
+        if (!docs.length) {
+          list.innerHTML = `<div class="empty-state"><div><p style="font-weight:800">No files</p><p class="muted">Upload files or adjust your search.</p></div></div>`;
+          return;
+        }
+        docs.forEach(doc => {
+          const btn = document.createElement("button");
+          btn.className = "file-card" + (activeDoc()?.id === doc.id ? " active" : "");
+          btn.type = "button";
+          btn.innerHTML = `
+            <input class="file-check" type="checkbox" ${state.selectedIds.has(doc.id) ? "checked" : ""} aria-label="Select file">
+            <div class="file-icon">${fileIcon(doc.file)}</div>
+            <div class="file-meta">
+              <p class="file-title">${escapeHtml(doc.name)}</p>
+              <p class="file-sub">${formatBytes(doc.size)} • ${escapeHtml(doc.kind)}</p>
+              <p class="file-sub truncate">${escapeHtml(doc.source)}${doc.originalPath && doc.source.startsWith("ZIP") ? " • " + escapeHtml(doc.originalPath) : ""}</p>
+              <div class="file-badges">${doc.convertible ? `<span class="badge good">Convertible</span>` : `<span class="badge warn">Unsupported</span>`}${isPdf(doc.file) ? `<span class="badge warn">Preview only</span>` : ""}</div>
+            </div>`;
+          btn.addEventListener("click", event => {
+            if (event.target.matches("input")) return;
+            state.activeId = doc.id;
+            switchMobilePanel("preview");
+            render();
+          });
+          btn.querySelector("input").addEventListener("click", event => event.stopPropagation());
+          btn.querySelector("input").addEventListener("change", event => {
+            if (event.target.checked) state.selectedIds.add(doc.id); else state.selectedIds.delete(doc.id);
+            render();
+          });
+          list.appendChild(btn);
+        });
+      });
+    }
+
+    function renderPreview() {
+      const doc = activeDoc();
+      const convertibleCount = selectedConvertible().length;
+      refs.previewSub?.forEach(el => el.textContent = doc ? `${doc.name} • ${fileKind(doc.file)}` : "No file selected • No active file");
+      refs.activeBadge?.forEach(el => { el.textContent = doc ? "Active" : "Idle"; el.className = "badge " + (doc ? "good" : ""); });
+      refs.selectedBadge?.forEach(el => el.textContent = convertibleCount + " convertible selected");
+      refs.previewShell?.forEach(shell => renderPreviewShell(shell, doc));
+    }
+
+    function renderTools() {
+      const doc = activeDoc();
+      refs.pageRangeInput?.forEach(input => { if (document.activeElement !== input) input.value = state.pageRange; });
+      refs.rotationSelect?.forEach(input => input.value = String(state.rotation));
+      refs.ocrPageInput?.forEach(input => { if (document.activeElement !== input) input.value = state.ocrPage; });
+      refs.stampTextInput?.forEach(input => { if (document.activeElement !== input) input.value = state.stampText; });
+      refs.convertActiveBtn?.forEach(btn => btn.disabled = state.busy || !doc || !isConvertible(doc.file));
+      refs.imagesToPdfBtn?.forEach(btn => btn.disabled = state.busy || !selectedImages().length);
+      refs.combineSelectedBtn?.forEach(btn => btn.disabled = state.busy || !selectedConvertible().length);
+      refs.mergePdfsBtn?.forEach(btn => btn.disabled = state.busy || selectedPdfs().length < 2);
+      ["extractPagesBtn", "splitPagesBtn", "deletePagesBtn", "rotatePagesBtn", "reversePagesBtn", "stampBtn"].forEach(key => refs[key]?.forEach(btn => btn.disabled = state.busy || !doc || !isPdf(doc.file)));
+      refs.extractTextBtn?.forEach(btn => btn.disabled = state.busy || !doc);
+      refs.ocrBtn?.forEach(btn => btn.disabled = state.busy || !doc || !(isPdf(doc.file) || isImage(doc.file)));
+    }
+
+    function renderOutput() {
+      refs.outputCountBadge?.forEach(el => el.textContent = state.results.length);
+      refs.logCountBadge?.forEach(el => el.textContent = state.conversionLog.length);
+      refs.textOutput?.forEach(el => { if (document.activeElement !== el) el.value = state.textOutput; });
+      refs.outputList?.forEach(list => {
+        list.innerHTML = "";
+        if (!state.results.length) {
+          list.innerHTML = `<div class="empty-state"><div><p style="font-weight:800">No output yet</p><p class="muted">Generated PDFs and text exports will appear here.</p></div></div>`;
+          return;
+        }
+        state.results.forEach(result => {
+          const card = document.createElement("div");
+          card.className = "output-card";
+          card.innerHTML = `<p class="output-title">${escapeHtml(result.name)}</p><p class="output-sub">${formatBytes(result.size)} • ${escapeHtml(result.createdAt)}</p><a class="btn primary full" style="margin-top:10px;text-decoration:none" href="${result.url}" download="${escapeHtml(result.name)}">⬇ Download</a>`;
+          list.appendChild(card);
+        });
+      });
+      refs.conversionLog?.forEach(list => {
+        list.innerHTML = "";
+        if (!state.conversionLog.length) {
+          list.innerHTML = `<p class="muted">Conversion details will appear after a converter action.</p>`;
+          return;
+        }
+        state.conversionLog.forEach(item => {
+          const card = document.createElement("div");
+          card.className = "log-card";
+          card.innerHTML = `<p class="log-title">${item.status === "Converted" || item.status === "Extracted" ? "✅" : "⚠"} ${escapeHtml(item.name)}</p><p class="log-sub">${escapeHtml(item.status)}: ${escapeHtml(item.detail)}</p>`;
+          list.appendChild(card);
+        });
+      });
+    }
+
+    function renderButtons() {
+      refs.clearWorkspaceBtn?.forEach(btn => btn.disabled = state.busy || !state.documents.length);
+      refs.selectAllBtn?.forEach(btn => btn.disabled = !state.documents.length);
+      refs.deselectAllBtn?.forEach(btn => btn.disabled = !state.selectedIds.size);
+      refs.removeSelectedBtn?.forEach(btn => btn.disabled = !state.selectedIds.size);
+      refs.clearOutputsBtn?.forEach(btn => btn.disabled = !state.results.length && !state.textOutput && !state.conversionLog.length);
+      refs.copyTextBtn?.forEach(btn => btn.disabled = !state.textOutput);
+      const index = activeDoc() ? state.documents.findIndex(doc => doc.id === activeDoc().id) : -1;
+      refs.moveUpBtn?.forEach(btn => btn.disabled = index <= 0);
+      refs.moveDownBtn?.forEach(btn => btn.disabled = index < 0 || index >= state.documents.length - 1);
+    }
+
+    function render() {
+      renderGlobal();
+      renderFiles();
+      renderPreview();
+      renderTools();
+      renderOutput();
+      renderButtons();
+      switchMobilePanel(state.mobilePanel);
+    }
+
+    function bindEvents() {
+      $all(".tab-btn").forEach(btn => btn.addEventListener("click", () => switchMobilePanel(btn.dataset.panel)));
+      refs.dropZone.forEach(zone => {
+        zone.addEventListener("click", () => zone.querySelector("#fileInput").click());
+        zone.addEventListener("keydown", event => { if (event.key === "Enter" || event.key === " ") zone.querySelector("#fileInput").click(); });
+        zone.addEventListener("dragover", event => { event.preventDefault(); zone.classList.add("dragging"); });
+        zone.addEventListener("dragleave", () => zone.classList.remove("dragging"));
+        zone.addEventListener("drop", event => { event.preventDefault(); zone.classList.remove("dragging"); ingestFiles(event.dataTransfer.files); });
+      });
+      refs.fileInput.forEach(input => input.addEventListener("change", event => ingestFiles(event.target.files)));
+      refs.addFilesBtn.forEach(btn => btn.addEventListener("click", () => refs.fileInput[0]?.click()));
+      refs.clearWorkspaceBtn.forEach(btn => btn.addEventListener("click", clearWorkspace));
+      refs.searchInput.forEach(input => input.addEventListener("input", event => { state.query = event.target.value; renderFiles(); }));
+      refs.selectAllBtn.forEach(btn => btn.addEventListener("click", () => { state.documents.filter(doc => doc.convertible).forEach(doc => state.selectedIds.add(doc.id)); setStatus("Selected all convertible files.", "neutral"); render(); }));
+      refs.deselectAllBtn.forEach(btn => btn.addEventListener("click", () => { state.selectedIds.clear(); setStatus("Selection cleared.", "neutral"); render(); }));
+      refs.moveUpBtn.forEach(btn => btn.addEventListener("click", () => moveActive(-1)));
+      refs.moveDownBtn.forEach(btn => btn.addEventListener("click", () => moveActive(1)));
+      refs.removeSelectedBtn.forEach(btn => btn.addEventListener("click", removeSelectedFiles));
+
+      refs.pageRangeInput.forEach(input => input.addEventListener("input", event => { state.pageRange = event.target.value; }));
+      refs.rotationSelect.forEach(input => input.addEventListener("change", event => { state.rotation = Number(event.target.value); }));
+      refs.ocrPageInput.forEach(input => input.addEventListener("input", event => { state.ocrPage = Number(event.target.value || 1); }));
+      refs.stampTextInput.forEach(input => input.addEventListener("input", event => { state.stampText = event.target.value; }));
+
+      refs.convertActiveBtn.forEach(btn => btn.addEventListener("click", convertActive));
+      refs.imagesToPdfBtn.forEach(btn => btn.addEventListener("click", imagesToPdf));
+      refs.combineSelectedBtn.forEach(btn => btn.addEventListener("click", combineSelected));
+      refs.mergePdfsBtn.forEach(btn => btn.addEventListener("click", () => unsupportedPdfEngine("Merge selected PDFs")));
+      refs.extractPagesBtn.forEach(btn => btn.addEventListener("click", () => unsupportedPdfEngine("Extract PDF pages")));
+      refs.splitPagesBtn.forEach(btn => btn.addEventListener("click", () => unsupportedPdfEngine("Split PDF pages")));
+      refs.deletePagesBtn.forEach(btn => btn.addEventListener("click", () => unsupportedPdfEngine("Delete PDF pages")));
+      refs.rotatePagesBtn.forEach(btn => btn.addEventListener("click", () => unsupportedPdfEngine("Rotate PDF pages")));
+      refs.reversePagesBtn.forEach(btn => btn.addEventListener("click", () => unsupportedPdfEngine("Reverse PDF pages")));
+      refs.stampBtn.forEach(btn => btn.addEventListener("click", () => unsupportedPdfEngine("Stamp or watermark existing PDF pages")));
+      refs.extractTextBtn.forEach(btn => btn.addEventListener("click", extractActiveText));
+      refs.ocrBtn.forEach(btn => btn.addEventListener("click", () => { setStatus("Optical Character Recognition (OCR) requires an embedded OCR engine. This no-external-server build does not load Tesseract.js or any CDN script.", "warn"); state.conversionLog = [{ name: "Optical Character Recognition (OCR)", status: "Not available", detail: "Requires bundled OCR engine or server-side OCR." }]; switchMobilePanel("output"); render(); }));
+
+      refs.clearOutputsBtn.forEach(btn => btn.addEventListener("click", clearOutputs));
+      refs.copyTextBtn.forEach(btn => btn.addEventListener("click", async () => { if (!state.textOutput) return; await navigator.clipboard.writeText(state.textOutput); setStatus("Extracted text copied to clipboard.", "good"); }));
+      refs.textOutput.forEach(area => area.addEventListener("input", event => { state.textOutput = event.target.value; }));
+    }
+
+    mountTemplates();
+    collectRefs();
+    bindEvents();
+    render();
+  </script>
+</body>
+</html>
